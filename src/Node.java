@@ -2,25 +2,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Node {
-    private Long id;
-    private int x;
-
-    public Long getId() {
-        return id;
-    }
-
-    private int y;
+    private final Long id;
+    private final int x;
+    private final int y;
     private int energy;
     private Long leaderId;
     private List<Node> group;
 
     public Node(int x, int y, int energy) {
-        this.id = Utils.generateId();
+        this.id = Util.generateId();
         this.x = x;
         this.y = y;
         this.energy = energy;
         this.leaderId = null;
         this.group = new ArrayList<>();
+    }
+
+
+    public Long getId() {
+        return id;
     }
 
     public int getX() {
@@ -57,7 +57,7 @@ public class Node {
         this.group.add(node);
     }
 
-    public void addListToGroup(List<Node> nodeList) {
+    public void updateGroup(List<Node> nodeList) {
         this.group = nodeList;
     }
 
