@@ -1,9 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Utils {
@@ -35,10 +33,35 @@ public class Utils {
             int energy = Integer.parseInt(triplet[i+2].replace(")", "").trim());
             Node node = new Node(x, y, energy);
             nodes.add(node);
-            System.out.println(node);
+//            System.out.println(node);
         }
 
         return nodes;
 
+    }
+
+    public static double calculateEuclideanDistance(Node leader, Node node) {
+        double dx = leader.getX() - node.getX();
+        double dy = leader.getY() - node.getY();
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    public static Map<Long, List<Node>> sortNodeMapByListLength(Map<Long, List<Node>> nodeMap) {
+        List<Map.Entry<Long, List<Node>>> entries = new ArrayList<>(nodeMap.entrySet());
+
+        Collections.sort(entries, (e1, e2) -> Integer.compare(e2.getValue().size(), e1.getValue().size()));
+
+        Map<Long, List<Node>> sortedNodeMap = new LinkedHashMap<>();
+        for (Map.Entry<Long, List<Node>> entry : entries) {
+            sortedNodeMap.put(entry.getKey(), entry.getValue());
+        }
+
+        return sortedNodeMap;
+    }
+
+    public static void printNodesList(List<Node> nodesList){
+        for (Node node : nodesList) {
+            System.out.println(node);
+        }
     }
 }

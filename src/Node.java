@@ -5,9 +5,13 @@ public class Node {
     private Long id;
     private int x;
 
+    public Long getId() {
+        return id;
+    }
+
     private int y;
     private int energy;
-    private int leaderId;
+    private Long leaderId;
     private List<Node> group;
 
     public Node(int x, int y, int energy) {
@@ -15,7 +19,7 @@ public class Node {
         this.x = x;
         this.y = y;
         this.energy = energy;
-        this.leaderId = 0;
+        this.leaderId = null;
         this.group = new ArrayList<>();
     }
 
@@ -36,11 +40,11 @@ public class Node {
         this.energy = energy;
     }
 
-    public int getLeaderId() {
+    public Long getLeaderId() {
         return leaderId;
     }
 
-    public void setLeaderId(int leaderId) {
+    public void setLeaderId(Long leaderId) {
         this.leaderId = leaderId;
     }
 
