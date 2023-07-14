@@ -23,7 +23,6 @@ public class Utils {
             String line;
             while ((line = reader.readLine()) != null) {
                 triplet = line.split(",");
-                System.out.println(triplet.length);
             }
 
         } catch (IOException e) {
@@ -36,6 +35,7 @@ public class Utils {
             int energy = Integer.parseInt(triplet[i+2].replace(")", "").trim());
             Node node = new Node(x, y, energy);
             nodes.add(node);
+            System.out.println(node);
         }
 
         return nodes;
