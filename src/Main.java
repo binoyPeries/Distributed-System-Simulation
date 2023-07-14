@@ -1,5 +1,7 @@
+import java.util.List;
+
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello world!");
+        List<Node> nodesList = Utils.extractNodes("input/input1.txt");
     }
 }
