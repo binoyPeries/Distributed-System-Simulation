@@ -30,13 +30,14 @@ public class Main {
         Map<Long, List<Node>> sortedNodeMap = Utils.sortNodeMapByListLength(nodeMap);
 
         while (!ungroupedNodes.isEmpty()){
-            for (Long nodeId : sortedNodeMap.keySet()) {
+            for (Long leaderNode : sortedNodeMap.keySet()) {
                 // all the nodes within distance of 20 of this node
-                List<Node> groupNodes = sortedNodeMap.get(nodeId);
+                List<Node> groupNodesOfLeader = sortedNodeMap.get(leaderNode);
 
-                for (Node groupNode : groupNodes) {
+                for (Node groupNode : groupNodesOfLeader) {
                     if (groupNode.getLeaderId() == null){
-                        groupNode.setLeaderId(nodeId);
+                        groupNode.setLeaderId(leaderNode);
+                        groupNode.addListToGroup(groupNodesOfLeader);
                         groupedNodes.add(groupNode);
                         ungroupedNodes.remove(groupNode);
 

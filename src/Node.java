@@ -57,6 +57,10 @@ public class Node {
         this.group.add(node);
     }
 
+    public void addListToGroup(List<Node> nodeList) {
+        this.group = nodeList;
+    }
+
     public void removeFromGroup(Node node) {
         this.group.remove(node);
     }
@@ -69,7 +73,7 @@ public class Node {
                 ", y=" + y +
                 ", energy=" + energy +
                 ", leaderId=" + leaderId +
-                ", group=" + group +
+                ", group=" + group.size() +
                 '}';
     }
 }
