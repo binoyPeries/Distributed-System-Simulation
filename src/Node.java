@@ -75,7 +75,7 @@ public class Node implements Runnable {
                 '}';
     }
 
-    public void sendMessage(Message message, Node receiver) {
+    public synchronized void sendMessage(Message message, Node receiver) {
         receiver.enqueueMessage(message);
 
 
@@ -111,6 +111,8 @@ public class Node implements Runnable {
 
     @Override
     public void run() {
+
+
         while (this.getEnergy() > 0) {
 //            Node node = cluster.getNodeMembers().get(0);
 //            Message message = new Message(MsgType.OTHER, this, node, "hello from the other side");

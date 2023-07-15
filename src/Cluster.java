@@ -3,7 +3,7 @@ import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class Cluster implements Runnable {
+public class Cluster {
     private final Long id;
     private Node leader;
     private List<Node> nodeMembers;
@@ -23,6 +23,7 @@ public class Cluster implements Runnable {
         this.nodeMembers = new ArrayList<>();
         this.clusterList = new ArrayList<>();
         this.lock = new ReentrantReadWriteLock();
+
     }
 
     public Long getId() {
@@ -38,24 +39,25 @@ public class Cluster implements Runnable {
         this.leader = leader;
     }
 
-    public void updateMemberEnergy(Node node, int updateBy) {
-        lock.writeLock().lock();
-        try {
-            int index = nodeMembers.indexOf(node);
-            nodeMembers.get(index).setEnergy(updateBy);
-            System.out.println("energy reduced");
-            System.out.println("done by-" + node.getId() + "" + this.nodeMembers);
-
-
-        } finally {
-            lock.writeLock().unlock();
-        }
-    }
+//    public void updateMemberEnergy(Node node, int updateBy) {
+//        lock.writeLock().lock();
+//        try {
+//            int index = nodeMembers.indexOf(node);
+//            nodeMembers.get(index).setEnergy(updateBy);
+//            System.out.println("energy reduced");
+//            System.out.println("done by-" + node.getId() + "" + this.nodeMembers);
+//
+//
+//        } finally {
+//            lock.writeLock().unlock();
+//        }
+//    }
 
     public void removeMember(Node node) {
         lock.writeLock().lock();
         try {
             nodeMembers.remove(node);
+
         } finally {
             lock.writeLock().unlock();
         }
@@ -64,6 +66,7 @@ public class Cluster implements Runnable {
     public List<Node> getNodeMembers() {
         lock.readLock().lock();
         try {
+
             return nodeMembers;
         } finally {
             lock.readLock().unlock();
@@ -75,9 +78,9 @@ public class Cluster implements Runnable {
         this.nodeMembers = nodeList;
     }
 
-    @Override
-    public void run() {
-        for (Node nodeMember : nodeMembers) {
+    public void startNodes() {
+        List<Node> nodeList = this.getNodeMembers();
+        for (Node nodeMember : nodeList) {
             Thread nodeThread = new Thread(nodeMember);
             nodeThread.start();
         }
