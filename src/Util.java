@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Util {
-    private static AtomicReference<Long> currentTime =
+    private static final AtomicReference<Long> currentTime =
             new AtomicReference<>(System.currentTimeMillis());
 
     public static Long generateId() {
@@ -49,13 +49,13 @@ public class Util {
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-    public static Map<Long, List<Node>> sortNodeMapByListLength(Map<Long, List<Node>> nodeMap) {
-        List<Map.Entry<Long, List<Node>>> entries = new ArrayList<>(nodeMap.entrySet());
+    public static Map<Node, List<Node>> sortNodeMapByListLength(Map<Node, List<Node>> nodeMap) {
+        List<Map.Entry<Node, List<Node>>> entries = new ArrayList<>(nodeMap.entrySet());
 
         entries.sort((e1, e2) -> Integer.compare(e2.getValue().size(), e1.getValue().size()));
 
-        Map<Long, List<Node>> sortedNodeMap = new LinkedHashMap<>();
-        for (Map.Entry<Long, List<Node>> entry : entries) {
+        Map<Node, List<Node>> sortedNodeMap = new LinkedHashMap<>();
+        for (Map.Entry<Node, List<Node>> entry : entries) {
             sortedNodeMap.put(entry.getKey(), entry.getValue());
         }
 
