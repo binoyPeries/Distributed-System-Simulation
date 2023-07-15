@@ -1,4 +1,3 @@
-import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -86,41 +85,11 @@ public class Node implements Runnable {
         while (!messageQueue.isEmpty()) {
             try {
                 Message message = messageQueue.take();
-                Node successor = Util.getNodeSuccessor(this);
-                if (message.getMessageType() == MsgType.ELECTION) {
-                    Long electionHolderId = message.getElectionHolder().getId();
-                    if (this.getId() > electionHolderId) {
-                        System.out.println("Forwarding to successor as it is, by " + this.getId());
-                        this.sendMessage(message, successor);
-                    } else if (this.getId() < electionHolderId) {
-
-                        if (this.status == ElectionParticipantStatus.NON_PARTICIPANT) {
-                            System.out.println("Starting my own election -  id -" + this.getId());
-                            message.setElectionHolder(this);
-                            this.setStatus(ElectionParticipantStatus.PARTICIPANT);
-                            this.sendMessage(message, successor);
-                        }
-                    } else {
-                        System.out.println("I have become the leader -  id -" + this.getId());
-
-                        this.setStatus(ElectionParticipantStatus.NON_PARTICIPANT);
-                        this.cluster.setLeader(this);
-                        Message electedMsg = new Message(MsgType.ELECTED, this, successor, "I'm the new leader");
-                        sendMessage(electedMsg, successor);
-
-                    }
-                } else if (message.getMessageType() == MsgType.ELECTED) {
-                    Node sender = message.getSender();
-                    if (!Objects.equals(sender.getId(), this.getId())) {
-
-                        this.status = ElectionParticipantStatus.NON_PARTICIPANT;
-                        System.out.println("===================NEW LEADER=========================");
-                        System.out.println("Setting new leader " + sender);
-                    }
-
-                } else {
+                if (message.getMessageType() == MsgType.OTHER) {
                     System.out.println("Received -" + message.getMsg() + " from -" + message.getSender());
 
+                } else {
+                    LeaderElection.handleElection(message, this);
                 }
                 //add some loge
             } catch (InterruptedException e) {
@@ -152,7 +121,6 @@ public class Node implements Runnable {
             readMessages();
 
             if (this.cluster.getLeader().getEnergy() <= 0) {
-                System.out.println("Node - " + this.getId() + " starting an election!!");
                 LeaderElection.ringAlgorithm(this);
             }
             this.setEnergy(-2);
