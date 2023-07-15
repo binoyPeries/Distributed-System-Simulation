@@ -80,10 +80,13 @@ public class LeaderElection {
     }
 
     public static void ringAlgorithm(Node electionHolder) {
-        electionHolder.setStatus(ElectionParticipantStatus.PARTICIPANT);
-        Node successor = Util.getNodeSuccessor(electionHolder);
-        Message electionMsg = new Message(MsgType.ELECTION, electionHolder, successor, electionHolder, "Node is starting an election.");
-        electionHolder.sendMessage(electionMsg, successor);
+        if (electionHolder.getStatus() == ElectionParticipantStatus.NON_PARTICIPANT) {
+            electionHolder.setStatus(ElectionParticipantStatus.PARTICIPANT);
+            Node successor = Util.getNodeSuccessor(electionHolder);
+            Message electionMsg = new Message(MsgType.ELECTION, electionHolder, successor, electionHolder, "Node is starting an election.");
+            electionHolder.sendMessage(electionMsg, successor);
+        }
+
     }
 
 }

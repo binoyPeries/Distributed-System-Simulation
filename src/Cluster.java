@@ -53,6 +53,15 @@ public class Cluster implements Runnable {
         }
     }
 
+    public void removeMember(Node node) {
+        lock.writeLock().lock();
+        try {
+            nodeMembers.remove(node);
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
     public List<Node> getNodeMembers() {
         lock.readLock().lock();
         try {
