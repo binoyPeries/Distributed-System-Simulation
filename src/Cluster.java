@@ -5,9 +5,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Cluster implements Runnable {
     private final Long id;
-
     private Node leader;
-
     private List<Node> nodeMembers;
 
     public void setClusterList(List<Cluster> clusterList) {
