@@ -67,4 +67,14 @@ public class Util {
             System.out.println(node);
         }
     }
+
+    public static Node getNodeSuccessor(Node node){
+        List<Node> groupNodes = node.getCluster().getNodeMembers();
+        int index = groupNodes.indexOf(node);
+        int nextIndex = 0;
+        if (index != groupNodes.size()){
+            nextIndex = index + 1;
+        }
+        return groupNodes.get(nextIndex);
+    }
 }

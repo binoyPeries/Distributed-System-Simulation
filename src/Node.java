@@ -1,12 +1,19 @@
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+enum ElectionParticipantStatus {
+    PARTICIPANT,
+    NON_PARTICIPANT
+}
+
 public class Node implements Runnable {
     private final Long id;
     private final int x;
     private final int y;
     private int energy;
     private Cluster cluster;
+
+    private ElectionParticipantStatus status;
     private final BlockingQueue<Message> messageQueue;
 
     public Node(int x, int y, int energy) {
@@ -16,9 +23,16 @@ public class Node implements Runnable {
         this.energy = energy;
         this.cluster = null;
         this.messageQueue = new LinkedBlockingQueue<>();
-
+        this.status = ElectionParticipantStatus.NON_PARTICIPANT;
     }
 
+    public ElectionParticipantStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ElectionParticipantStatus status) {
+        this.status = status;
+    }
 
     public Long getId() {
         return id;
@@ -39,6 +53,7 @@ public class Node implements Runnable {
 
     public void setEnergy(int energy) {
         this.energy += energy;
+        System.out.println(this.cluster.getNodeMembers());
     }
 
 
@@ -73,6 +88,18 @@ public class Node implements Runnable {
             try {
                 Message message = messageQueue.take();
                 System.out.println("Received -" + message.getMsg() + " from -" + message.getSender());
+                Node successor = Util.getNodeSuccessor(this);
+                if (message.getMessageType() == MsgType.ELECTION) {
+                    if (this.getId() > message.getElectionHolder().getId()) {
+                        this.sendMessage(message, successor);
+                    } else {
+                        if (this.status == ElectionParticipantStatus.NON_PARTICIPANT) {
+                            message.setElectionHolder(this);
+                            this.setStatus(ElectionParticipantStatus.PARTICIPANT);
+                            this.sendMessage(message, successor);
+                        }
+                    }
+                }
                 //add some loge
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -97,7 +124,12 @@ public class Node implements Runnable {
         this.sendMessage(message, node);
 
         readMessages();
-
-
+//        this.setEnergy(-1000);
+//
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 }
