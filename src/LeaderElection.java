@@ -77,9 +77,9 @@ public class LeaderElection {
     }
 
     public synchronized static void ringAlgorithm(Node electionHolder) {
-        System.out.println("Node - " + electionHolder.getId() + " starting an election!!");
 
         if (electionHolder.getStatus() == ElectionParticipantStatus.NON_PARTICIPANT) {
+            System.out.println("Node - " + electionHolder.getId() + " starting an election!!");
             electionHolder.setStatus(ElectionParticipantStatus.PARTICIPANT);
             Node successor = Util.getNodeSuccessor(electionHolder);
             Message electionMsg = new Message(MsgType.ELECTION, electionHolder, successor, electionHolder, "Node is starting an election.");

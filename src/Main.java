@@ -8,14 +8,14 @@ public class Main {
         System.out.println("===================== Clusters ============================");
         System.out.println(leaderElectedClusters);
         System.out.println("===================== Clusters ENDS :( ============================");
-//
-//        for (Cluster c : leaderElectedClusters) {
-//            Thread nodeThread = new Thread(c);
-//            nodeThread.start();
-//        }
 
-        Thread nodeThread = new Thread(leaderElectedClusters.get(1));
-        nodeThread.start();
+        for (Cluster c : leaderElectedClusters) {
+            Thread nodeThread = new Thread(c);
+            nodeThread.start();
+        }
+
+//        Thread nodeThread = new Thread(leaderElectedClusters.get(1));
+//        nodeThread.start();
 
 
     }

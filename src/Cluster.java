@@ -23,7 +23,6 @@ public class Cluster implements Runnable {
         this.nodeMembers = new ArrayList<>();
         this.clusterList = new ArrayList<>();
         this.lock = new ReentrantReadWriteLock();
-
     }
 
     public Long getId() {
