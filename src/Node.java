@@ -51,7 +51,7 @@ public class Node implements Runnable {
         return energy;
     }
 
-    public void setEnergy(int energy) {
+    public synchronized void setEnergy(int energy) {
         this.energy += energy;
     }
 
@@ -77,6 +77,8 @@ public class Node implements Runnable {
 
     public synchronized void sendMessage(Message message, Node receiver) {
         receiver.enqueueMessage(message);
+        Node sender = message.getSender();
+        sender.setEnergy(-2);
 
 
     }
@@ -114,26 +116,31 @@ public class Node implements Runnable {
 
 
         while (this.getEnergy() > 0) {
-//            Node node = cluster.getNodeMembers().get(0);
-//            Message message = new Message(MsgType.OTHER, this, node, "hello from the other side");
-//            this.sendMessage(message, node);
 
-//            System.out.println("MY energy  " + this.getId() + "  " + this.getEnergy());
-//            System.out.println("MY STATUS  " + this.getId() + " " + this.getStatus());
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+
+            //:TODO find a solution for every time unit
+
+            // randomly send msg between two nodes with in the same cluster
+            Util.sendRandomMsgBetweenNodes(this);
+
+            // read msg in the queue
             readMessages();
-
+            // check whether leader is still active
             if (this.cluster.getLeader().getEnergy() <= 0) {
                 LeaderElection.ringAlgorithm(this);
             }
-            this.setEnergy(-2);
+
+            // this is to reduce energy every unit time?
+            this.setEnergy(-1);
         }
+        System.out.println("================" + this.getId() + "===============dead=");
         this.cluster.removeMember(this);
 
-//
-//        try {
-//            Thread.sleep(1000);
-//        } catch (InterruptedException e) {
-//            throw new RuntimeException(e);
-//        }
+
     }
 }

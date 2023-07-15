@@ -1,10 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Util {
@@ -76,5 +73,51 @@ public class Util {
             nextIndex = index + 1;
         }
         return groupNodes.get(nextIndex);
+    }
+
+    public static int randomNumberGenerator(int min, int max) {
+
+
+        // Create a new instance of the Random class
+        Random random = new Random();
+        // Generate a random number between min and max (inclusive)
+        return random.nextInt(max - min + 1) + min;
+    }
+
+    public static void sendRandomMsgBetweenNodes(Node sender) {
+
+        long time = randomNumberGenerator(1, 10);
+
+        if (time > 3) {
+            return;
+        }
+
+        int clusterSize = sender.getCluster().getNodeMembers().size();
+        int randIndex = randomNumberGenerator(0, clusterSize - 1);
+        Node receiver = sender.getCluster().getNodeMembers().get(randIndex);
+
+        // this is to exist from sending a msg if both receiver and sender are the same
+        // so in this round the node whoever called this method will not send any messages
+        if (Objects.equals(receiver.getId(), sender.getId())) {
+            return;
+        }
+        Timer timer = new Timer();
+        String msgInfo = "Node " + sender.getId() + " Sending a random msg to Node  " + receiver.getId();
+        Message msg = new Message(MsgType.OTHER, sender, receiver, msgInfo);
+
+
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                // Task to be executed after the specified delay
+                System.out.println(msgInfo);
+                sender.sendMessage(msg, receiver);
+                // Perform additional actions as needed
+            }
+        };
+
+        // Schedule the task to run after a time-second delay
+        timer.schedule(task, time * 1000L);
+
     }
 }
