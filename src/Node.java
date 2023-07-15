@@ -9,9 +9,6 @@ public class Node implements Runnable {
     private Cluster cluster;
     private final BlockingQueue<Message> messageQueue;
 
-//    private Long leaderId;
-//    private List<Node> group;
-
     public Node(int x, int y, int energy) {
         this.id = Util.generateId();
         this.x = x;
@@ -44,30 +41,6 @@ public class Node implements Runnable {
         this.energy += energy;
     }
 
-//    public Long getLeaderId() {
-//        return leaderId;
-//    }
-//
-//    public void setLeaderId(Long leaderId) {
-//        this.leaderId = leaderId;
-//    }
-//
-//
-//    public List<Node> getGroup() {
-//        return group;
-//    }
-
-//    public void addToGroup(Node node) {
-//        this.group.add(node);
-//    }
-//
-//    public void updateGroup(List<Node> nodeList) {
-//        this.group = nodeList;
-//    }
-//
-//    public void removeFromGroup(Node node) {
-//        this.group.remove(node);
-//    }
 
     public Cluster getCluster() {
         return cluster;
