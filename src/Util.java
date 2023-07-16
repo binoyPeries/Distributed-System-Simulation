@@ -67,6 +67,9 @@ public class Util {
 
     public static Node getNodeSuccessor(Node node) {
         List<Node> groupNodes = node.getCluster().getNodeMembers();
+        if (groupNodes.size() == 1) {
+            return null;
+        }
         int index = groupNodes.indexOf(node);
         int nextIndex = 0;
         if (index != groupNodes.size() - 1) {
@@ -86,9 +89,9 @@ public class Util {
 
     public static void sendRandomMsgBetweenNodes(Node sender) {
 
-        long time = randomNumberGenerator(1, 10);
+        long chance = randomNumberGenerator(1, 15);
 
-        if (time > 3) {
+        if (chance > 3) {
             return;
         }
 
@@ -101,23 +104,12 @@ public class Util {
         if (Objects.equals(receiver.getId(), sender.getId())) {
             return;
         }
-        Timer timer = new Timer();
-        String msgInfo = "Node " + sender.getId() + " Sending a random msg to Node  " + receiver.getId();
+
+        String msgInfo = "Node " + sender.getId() + " is sending a random message to node " + receiver.getId();
         Message msg = new Message(MsgType.OTHER, sender, receiver, msgInfo);
-
-
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                // Task to be executed after the specified delay
-                System.out.println(msgInfo);
-                sender.sendMessage(msg, receiver);
-                // Perform additional actions as needed
-            }
-        };
-
-        // Schedule the task to run after a time-second delay
-        timer.schedule(task, time * 1000L);
-
+        System.out.println("[MESSAGE] " + msgInfo);
+        sender.sendMessage(msg, receiver);
     }
+
+
 }

@@ -2,25 +2,18 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        List<Node> nodesList = Util.extractNodes("input/input1.txt");
+        List<Node> nodesList = Util.extractNodes("input/input3.txt");
         List<Cluster> leaderElectedClusters = LeaderElection.electInitialLeaders(nodesList);
-        System.out.println("===================== Clusters ============================");
-        System.out.println(leaderElectedClusters);
-        System.out.println("===================== Clusters ENDS :( ============================");
-
-
-//        for (Node nodeMember : leaderElectedClusters.get(3).getNodeMembers()) {
-//            Thread nodeThread = new Thread(nodeMember);
-//            nodeThread.start();
-//        }
-
+        System.out.println("===================== List of clusters. ============================");
+        for (Cluster c : leaderElectedClusters) {
+            System.out.println(c);
+        }
+        System.out.println("===================== End of list of clusters. ============================");
 
         for (Cluster c : leaderElectedClusters) {
-            c.startNodes();
+            System.out.println("[CLUSTER] Cluster with id " + c.getId() + " has started.");
+            c.startNodes(c.getId());
         }
-
-
     }
-
 }
 

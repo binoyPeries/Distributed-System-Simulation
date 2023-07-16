@@ -1,5 +1,6 @@
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Logger;
 
 enum ElectionParticipantStatus {
     PARTICIPANT,
@@ -7,6 +8,7 @@ enum ElectionParticipantStatus {
 }
 
 public class Node implements Runnable {
+    private static final Logger logger = Logger.getLogger(Node.class.getName());
     private final Long id;
     private final int x;
     private final int y;
@@ -88,8 +90,7 @@ public class Node implements Runnable {
             try {
                 Message message = messageQueue.take();
                 if (message.getMessageType() == MsgType.OTHER) {
-                    System.out.println("Received -" + message.getMsg() + " from -" + message.getSender());
-
+                    System.out.println("[MESSAGE] Node " + this.getId() + " received the message " + message.getMsg() + " from " + message.getSender().getId());
                 } else {
                     LeaderElection.handleElection(message, this);
                 }
@@ -103,7 +104,7 @@ public class Node implements Runnable {
     private void enqueueMessage(Message message) {
         try {
             messageQueue.put(message);
-            System.out.println("Q - " + this.getId() + " " + messageQueue);
+//            System.out.println("Q - " + this.getId() + " " + messageQueue);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
 //            logger.warning("Interrupted while enqueuing a message from Node " + message.getSender().getId() +
@@ -114,7 +115,6 @@ public class Node implements Runnable {
     @Override
     public void run() {
 
-
         while (this.getEnergy() > 0) {
 
 //            try {
@@ -122,8 +122,7 @@ public class Node implements Runnable {
 //            } catch (InterruptedException e) {
 //                throw new RuntimeException(e);
 //            }
-
-            //:TODO find a solution for every time unit
+            logger.info("[SYSTEM STATUS] Node of id " + this.getId() + " has energy level " + this.getEnergy());
 
             // randomly send msg between two nodes with in the same cluster
             Util.sendRandomMsgBetweenNodes(this);
@@ -138,9 +137,8 @@ public class Node implements Runnable {
             // this is to reduce energy every unit time?
             this.setEnergy(-1);
         }
-        System.out.println("================" + this.getId() + "===============dead=");
+//        System.out.println("================ Node " + this.getId() + " has died. ==================");
+        System.out.println("[DEATH] Node " + this.getId() + " has died.");
         this.cluster.removeMember(this);
-
-
     }
 }

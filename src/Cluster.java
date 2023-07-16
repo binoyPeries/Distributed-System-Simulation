@@ -78,22 +78,34 @@ public class Cluster {
         this.nodeMembers = nodeList;
     }
 
-    public void startNodes() {
+    public void startNodes(Long clusterId) {
         List<Node> nodeList = this.getNodeMembers();
         for (Node nodeMember : nodeList) {
             Thread nodeThread = new Thread(nodeMember);
             nodeThread.start();
+            System.out.println("[THREAD] Thread for node with id " + nodeMember.getId() + " in cluster " + clusterId + " has started.");
         }
+    }
+
+    private String getNodeIds() {
+        StringBuilder nodeIds = new StringBuilder();
+        for (int i = 0; i < nodeMembers.size(); i++) {
+            Node node = nodeMembers.get(i);
+            nodeIds.append(nodeMembers.get(i).getId()).append(" (x: " + node.getX() + ", y: " + node.getY() + ")");
+            if (i == nodeMembers.size() - 1) {
+                nodeIds.append(". ");
+            } else {
+                nodeIds.append(",");
+            }
+        }
+        return nodeIds.toString();
     }
 
 
     @Override
     public String toString() {
-        return "Cluster{" +
-                "id=" + id +
-                ", leader=" + leader +
-                ", nodeMembers=" + nodeMembers +
-                ", clusterList=" + clusterList.size() +
-                '}' + '\n';
+        return "Cluster " + id +
+                " has leader node " + leader.getId() +
+                " and a total of " + nodeMembers.size() + " nodes with id(s): " + getNodeIds();
     }
 }
