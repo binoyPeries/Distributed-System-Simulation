@@ -91,12 +91,8 @@ public class Cluster {
         StringBuilder nodeIds = new StringBuilder();
         for (int i = 0; i < nodeMembers.size(); i++) {
             Node node = nodeMembers.get(i);
-            nodeIds.append(nodeMembers.get(i).getId()).append(" (x: " + node.getX() + ", y: " + node.getY() + ")");
-            if (i == nodeMembers.size() - 1) {
-                nodeIds.append(". ");
-            } else {
-                nodeIds.append(",");
-            }
+            nodeIds.append("ID = ").append(node.getId()).append(", (x: " + node.getX() + ", y: " + node.getY() + ")").append(", energy level = ").append(node.getEnergy());
+            nodeIds.append('\n');
         }
         return nodeIds.toString();
     }
@@ -104,8 +100,9 @@ public class Cluster {
 
     @Override
     public String toString() {
+
         return "Cluster " + id +
                 " has leader node " + leader.getId() +
-                " and a total of " + nodeMembers.size() + " nodes with id(s): " + getNodeIds();
+                " and a total of " + nodeMembers.size() + " members. Member nodes are:" + '\n' + getNodeIds();
     }
 }
