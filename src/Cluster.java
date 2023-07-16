@@ -83,7 +83,7 @@ public class Cluster {
         for (Node nodeMember : nodeList) {
             Thread nodeThread = new Thread(nodeMember);
             nodeThread.start();
-            System.out.println("[THREAD] Thread for node with id " + nodeMember.getId() + " in cluster " + clusterId + " has started.");
+            System.out.println("[NODE] Thread for node with id " + nodeMember.getId() + " in cluster " + clusterId + " has started.");
         }
     }
 
@@ -103,6 +103,6 @@ public class Cluster {
 
         return "Cluster " + id +
                 " has leader node " + leader.getId() +
-                " and a total of " + nodeMembers.size() + " members. Member nodes are:" + '\n' + getNodeIds();
+                " and a total of " + nodeMembers.size() + " member(s). Member nodes are:" + '\n' + getNodeIds();
     }
 }
