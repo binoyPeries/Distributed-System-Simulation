@@ -1,8 +1,13 @@
 import java.util.List;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        List<Node> nodesList = Util.extractNodes("input/input1.txt");
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter your input file path: ");
+        String filePath = scanner.nextLine();
+        List<Node> nodesList = Util.extractNodes(filePath);
         List<Cluster> leaderElectedClusters = LeaderElection.electInitialLeaders(nodesList);
         for (Cluster c : leaderElectedClusters) {
             System.out.println("[CLUSTER INFORMATION] " + c);
