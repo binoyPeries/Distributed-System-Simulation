@@ -2,7 +2,7 @@ import java.util.*;
 
 public class LeaderElection {
 
-    public static List<Node> electInitialLeaders(List<Node> nodesList) {
+    public static List<Cluster> electInitialLeaders(List<Node> nodesList) {
         /**
          * The algorithm is as follows: we consider how many possible nodes are within a radius of 20 for each node.
          * This is done by maintaining a hash map - each node id is a key and the nodes within a radius of 20 will be the value.
@@ -12,28 +12,28 @@ public class LeaderElection {
          */
         List<Node> groupedNodes = new ArrayList<>();
         List<Node> ungroupedNodes = new ArrayList<>(nodesList);
-        // to maintain a list of the initial leaders
-        Set<Node> initialLeaders = new HashSet<>();
+        List<Cluster> finalClusterList = new ArrayList<>();
 
-        Map<Long, List<Node>> nodeMap = new HashMap<>();
+        Map<Node, List<Node>> nodeMap = new HashMap<>();
+
 
         /**
          * This loop calculates the number of nodes within a radius of 20 for each node
          */
         for (Node potentialLeader : nodesList) {
-            nodeMap.put(potentialLeader.getId(), new ArrayList<>());
+            nodeMap.put(potentialLeader, new ArrayList<>());
 
             for (Node node : nodesList) {
                 // if the distance to a node from the potential leader is less than 20
                 if (Util.calculateEuclideanDistance(potentialLeader, node) <= 20.00) {
                     // add that node to the potential leader's list
-                    nodeMap.get(potentialLeader.getId()).add(node);
+                    nodeMap.get(potentialLeader).add(node);
                 }
             }
         }
 
 
-        Map<Long, List<Node>> sortedNodeMap = Util.sortNodeMapByListLength(nodeMap);
+        Map<Node, List<Node>> sortedNodeMap = Util.sortNodeMapByListLength(nodeMap);
 
         /**
          * This loop does the actual leader selection.
@@ -44,33 +44,85 @@ public class LeaderElection {
          * set its group as A's group, add it to the groupedNodes list and remove it from the ungroupedNodes list.
          */
         while (!ungroupedNodes.isEmpty()) {
-            for (Long leaderId : sortedNodeMap.keySet()) {
+            for (Node leader : sortedNodeMap.keySet()) {
                 // all the nodes within distance of 20 of this node (potentially a group)
-                List<Node> groupNodesOfLeader = sortedNodeMap.get(leaderId);
+                List<Node> groupNodesOfLeader = sortedNodeMap.get(leader);
                 List<Node> finalGroupMembers = new ArrayList<>(groupNodesOfLeader);
+                Cluster cluster = new Cluster();
 
                 for (Node groupMember : groupNodesOfLeader) {
-                    if (groupMember.getLeaderId() == null) {
-                        groupMember.setLeaderId(leaderId);
+                    if (groupMember.getCluster() == null) {
+//                        groupMember.setLeaderId(leader);
+                        groupMember.setCluster(cluster);
                         groupedNodes.add(groupMember);
                         ungroupedNodes.remove(groupMember);
-
-                        // this is to get the actual node of the leader, since earlier we access it using the id only
-                        // this is only necessary when we want the list of initial leaders
-                        if (Objects.equals(groupMember.getId(), leaderId)) {
-                            initialLeaders.add(groupMember);
-                        }
 
                     } else {
                         finalGroupMembers.remove(groupMember);
                     }
                 }
-                finalGroupMembers.forEach(node -> node.updateGroup(finalGroupMembers));
+//                finalGroupMembers.forEach(node -> node.updateGroup(finalGroupMembers));
+                if (!finalGroupMembers.isEmpty()) {
+                    cluster.setLeader(leader);
+                    cluster.updateClusterMembers(finalGroupMembers);
+                    finalClusterList.add(cluster);
+                }
+
             }
         }
+        finalClusterList.forEach(cluster -> cluster.setClusterList(finalClusterList));
 
-        return groupedNodes;
+        return finalClusterList;
 
     }
 
+    public synchronized static void ringAlgorithm(Node electionHolder) {
+
+        if (electionHolder.getStatus() == ElectionParticipantStatus.NON_PARTICIPANT) {
+            System.out.println("[ELECTION] Node with id " + electionHolder.getId() + " is starting an election.");
+            electionHolder.setStatus(ElectionParticipantStatus.PARTICIPANT);
+            Node successor = Util.getNodeSuccessor(electionHolder);
+            if (successor != null) {
+                Message electionMsg = new Message(MsgType.ELECTION, electionHolder, successor, electionHolder, "Node is starting an election.");
+                electionHolder.sendMessage(electionMsg, successor);
+            }
+        }
+
+    }
+
+    public synchronized static void handleElection(Message message, Node currentNode) {
+        Node successor = Util.getNodeSuccessor(currentNode);
+        if (successor == null) {
+            System.out.println("[ELECTION - NEW LEADER] Node with id " + currentNode.getId() + " has become the leader.");
+            currentNode.setStatus(ElectionParticipantStatus.NON_PARTICIPANT);
+            currentNode.getCluster().setLeader(currentNode);
+            return;
+        }
+        if (message.getMessageType() == MsgType.ELECTION) {
+            Long electionHolderId = message.getElectionHolder().getId();
+            if (currentNode.getId() > electionHolderId) {
+                System.out.println("[ELECTION] Forwarding to successor " + successor.getId() + " as it is, by " + currentNode.getId());
+                currentNode.sendMessage(message, successor);
+            } else if (currentNode.getId() < electionHolderId) {
+                if (currentNode.getStatus() == ElectionParticipantStatus.NON_PARTICIPANT) {
+                    System.out.println("[ELECTION] Node with id " + currentNode.getId() + "has started its own election.");
+                    message.setElectionHolder(currentNode);
+                    currentNode.setStatus(ElectionParticipantStatus.PARTICIPANT);
+                    currentNode.sendMessage(message, successor);
+                }
+            } else {
+                System.out.println("[ELECTION - NEW LEADER] Node with id " + currentNode.getId() + " has become the leader.");
+                currentNode.setStatus(ElectionParticipantStatus.NON_PARTICIPANT);
+                currentNode.getCluster().setLeader(currentNode);
+                Message electedMsg = new Message(MsgType.ELECTED, currentNode, successor, "I'm the new leader");
+                currentNode.sendMessage(electedMsg, successor);
+            }
+        } else if (message.getMessageType() == MsgType.ELECTED) {
+            Node sender = message.getSender();
+            if (!Objects.equals(sender.getId(), currentNode.getId())) {
+                currentNode.setStatus(ElectionParticipantStatus.NON_PARTICIPANT);
+                System.out.println("[ELECTED] New leader of the cluster is the node of id " + sender.getId());
+            }
+        }
+    }
 }

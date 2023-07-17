@@ -1,23 +1,40 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Logger;
 
-public class Node {
+enum ElectionParticipantStatus {
+    PARTICIPANT,
+    NON_PARTICIPANT
+}
+
+public class Node implements Runnable {
+    private static final Logger logger = Logger.getLogger(Node.class.getName());
     private final Long id;
     private final int x;
     private final int y;
     private int energy;
-    private Long leaderId;
-    private List<Node> group;
+    private Cluster cluster;
+
+    private ElectionParticipantStatus status;
+    private final BlockingQueue<Message> messageQueue;
 
     public Node(int x, int y, int energy) {
         this.id = Util.generateId();
         this.x = x;
         this.y = y;
         this.energy = energy;
-        this.leaderId = null;
-        this.group = new ArrayList<>();
+        this.cluster = null;
+        this.messageQueue = new LinkedBlockingQueue<>();
+        this.status = ElectionParticipantStatus.NON_PARTICIPANT;
     }
 
+    public ElectionParticipantStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ElectionParticipantStatus status) {
+        this.status = status;
+    }
 
     public Long getId() {
         return id;
@@ -36,33 +53,17 @@ public class Node {
         return energy;
     }
 
-    public void setEnergy(int energy) {
-        this.energy = energy;
-    }
-
-    public Long getLeaderId() {
-        return leaderId;
-    }
-
-    public void setLeaderId(Long leaderId) {
-        this.leaderId = leaderId;
+    public synchronized void setEnergy(int energy) {
+        this.energy += energy;
     }
 
 
-    public List<Node> getGroup() {
-        return group;
+    public Cluster getCluster() {
+        return cluster;
     }
 
-    public void addToGroup(Node node) {
-        this.group.add(node);
-    }
-
-    public void updateGroup(List<Node> nodeList) {
-        this.group = nodeList;
-    }
-
-    public void removeFromGroup(Node node) {
-        this.group.remove(node);
+    public void setCluster(Cluster cluster) {
+        this.cluster = cluster;
     }
 
     @Override
@@ -72,8 +73,72 @@ public class Node {
                 ", x=" + x +
                 ", y=" + y +
                 ", energy=" + energy +
-                ", leaderId=" + leaderId +
-                ", group=" + group.size() +
+                ", cluster=" + cluster.getId() +
                 '}';
+    }
+
+    public synchronized void sendMessage(Message message, Node receiver) {
+        receiver.enqueueMessage(message);
+        Node sender = message.getSender();
+        sender.setEnergy(-2);
+
+
+    }
+
+    public void readMessages() {
+        while (!messageQueue.isEmpty()) {
+            try {
+                Message message = messageQueue.take();
+                if (message.getMessageType() == MsgType.OTHER) {
+                    System.out.println("[MESSAGE] Node " + this.getId() + " received the message " + message.getMsg() + " from " + message.getSender().getId());
+                } else {
+                    LeaderElection.handleElection(message, this);
+                }
+                //add some loge
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    private void enqueueMessage(Message message) {
+        try {
+            messageQueue.put(message);
+//            System.out.println("Q - " + this.getId() + " " + messageQueue);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+//            logger.warning("Interrupted while enqueuing a message from Node " + message.getSender().getId() +
+//                    " to Node " + message.getReceiver().getId());
+        }
+    }
+
+    @Override
+    public void run() {
+
+        while (this.getEnergy() > 0) {
+
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+            logger.info("[SYSTEM STATUS] Node of id " + this.getId() + " has energy level " + this.getEnergy());
+
+            // randomly send msg between two nodes with in the same cluster
+            Util.sendRandomMsgBetweenNodes(this);
+
+            // read msg in the queue
+            readMessages();
+            // check whether leader is still active
+            if (this.cluster.getLeader().getEnergy() <= 0) {
+                LeaderElection.ringAlgorithm(this);
+            }
+
+            // this is to reduce energy every unit time?
+            this.setEnergy(-1);
+        }
+//        System.out.println("================ Node " + this.getId() + " has died. ==================");
+        System.out.println("[DEATH] Node " + this.getId() + " has died.");
+        this.cluster.removeMember(this);
     }
 }

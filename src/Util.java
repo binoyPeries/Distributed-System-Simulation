@@ -1,14 +1,11 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Util {
-    private static AtomicReference<Long> currentTime =
+    private static final AtomicReference<Long> currentTime =
             new AtomicReference<>(System.currentTimeMillis());
 
     public static Long generateId() {
@@ -49,13 +46,13 @@ public class Util {
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-    public static Map<Long, List<Node>> sortNodeMapByListLength(Map<Long, List<Node>> nodeMap) {
-        List<Map.Entry<Long, List<Node>>> entries = new ArrayList<>(nodeMap.entrySet());
+    public static Map<Node, List<Node>> sortNodeMapByListLength(Map<Node, List<Node>> nodeMap) {
+        List<Map.Entry<Node, List<Node>>> entries = new ArrayList<>(nodeMap.entrySet());
 
         entries.sort((e1, e2) -> Integer.compare(e2.getValue().size(), e1.getValue().size()));
 
-        Map<Long, List<Node>> sortedNodeMap = new LinkedHashMap<>();
-        for (Map.Entry<Long, List<Node>> entry : entries) {
+        Map<Node, List<Node>> sortedNodeMap = new LinkedHashMap<>();
+        for (Map.Entry<Node, List<Node>> entry : entries) {
             sortedNodeMap.put(entry.getKey(), entry.getValue());
         }
 
@@ -67,4 +64,52 @@ public class Util {
             System.out.println(node);
         }
     }
+
+    public static Node getNodeSuccessor(Node node) {
+        List<Node> groupNodes = node.getCluster().getNodeMembers();
+        if (groupNodes.size() == 1) {
+            return null;
+        }
+        int index = groupNodes.indexOf(node);
+        int nextIndex = 0;
+        if (index != groupNodes.size() - 1) {
+            nextIndex = index + 1;
+        }
+        return groupNodes.get(nextIndex);
+    }
+
+    public static int randomNumberGenerator(int min, int max) {
+
+
+        // Create a new instance of the Random class
+        Random random = new Random();
+        // Generate a random number between min and max (inclusive)
+        return random.nextInt(max - min + 1) + min;
+    }
+
+    public static void sendRandomMsgBetweenNodes(Node sender) {
+
+        long chance = randomNumberGenerator(1, 15);
+
+        if (chance > 3) {
+            return;
+        }
+
+        int clusterSize = sender.getCluster().getNodeMembers().size();
+        int randIndex = randomNumberGenerator(0, clusterSize - 1);
+        Node receiver = sender.getCluster().getNodeMembers().get(randIndex);
+
+        // this is to exist from sending a msg if both receiver and sender are the same
+        // so in this round the node whoever called this method will not send any messages
+        if (Objects.equals(receiver.getId(), sender.getId())) {
+            return;
+        }
+
+        String msgInfo = "Node " + sender.getId() + " is sending a random message to node " + receiver.getId();
+        Message msg = new Message(MsgType.OTHER, sender, receiver, msgInfo);
+        System.out.println("[MESSAGE] " + msgInfo);
+        sender.sendMessage(msg, receiver);
+    }
+
+
 }
