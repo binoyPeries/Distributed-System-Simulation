@@ -1,18 +1,18 @@
 # CS4262 - Distributed Systems - Programming Assignment
 
-This repository contains the source code for a simulation of a dsitributed system.
+This repository contains the source code for a simulation of a distributed system.
 It simulates the communication between various nodes of a distributed system that have
 an initial amount of energy. Upon system initialization, groups of nodes are formed based on
 their Euclidean distance to each other, and an initial leader for each group is selected. For each
 timestep of the system, the energy of a node decreases by 1, and upon message transmission, the energy of
-the sender decreases by 2. When the energy of a node becomes 0, it will be considered dead and removed from the system.
-If the leader of a group reaches a 0 energy level, a leader election will happen within that group and a new leader will
+the sender decreases by 2. When the energy of a node reaches 0, it will be considered dead and removed from the system.
+If the leader of a group reaches a 0 energy level, a leader election will happen within that group, and a new leader will
 be elected.
 The goal of the system is to maximize its lifetime.
 
 ## Input
 
-Inputs of the program are the x, y coordinates of each node and their initial energy level. The values should be
+The inputs of the program are the x, y coordinates of each node and their initial energy level. The values should be
 provided in a text file.
 Sample inputs have been provided in the input folder.
 
