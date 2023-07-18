@@ -70,10 +70,8 @@ public class Node implements Runnable {
     public String toString() {
         return "Node{" +
                 "id=" + id +
-                ", x=" + x +
-                ", y=" + y +
                 ", energy=" + energy +
-                ", cluster=" + cluster.getId() +
+                ", leader=" + cluster.getLeader().getId() +
                 '}';
     }
 
@@ -109,12 +107,17 @@ public class Node implements Runnable {
         }
     }
 
+    private Long getLeader() {
+        return this.cluster.getLeader().getLeader();
+    }
+
     @Override
     public void run() {
 
         while (this.getEnergy() > 0) {
 
-            logger.info("[SYSTEM STATUS] Node of id " + this.getId() + " has energy level " + this.getEnergy());
+//            logger.info("[SYSTEM STATUS] Node of id " + this.getId() + " has energy level " + this.getEnergy());
+            logger.info("[SYSTEM STATUS] " + this.toString());
 
             // randomly send msg between two nodes with in the same cluster
             Util.sendRandomMsgBetweenNodes(this);
