@@ -104,11 +104,8 @@ public class Node implements Runnable {
     private void enqueueMessage(Message message) {
         try {
             messageQueue.put(message);
-//            System.out.println("Q - " + this.getId() + " " + messageQueue);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-//            logger.warning("Interrupted while enqueuing a message from Node " + message.getSender().getId() +
-//                    " to Node " + message.getReceiver().getId());
         }
     }
 
@@ -117,11 +114,6 @@ public class Node implements Runnable {
 
         while (this.getEnergy() > 0) {
 
-//            try {
-//                Thread.sleep(500);
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
             logger.info("[SYSTEM STATUS] Node of id " + this.getId() + " has energy level " + this.getEnergy());
 
             // randomly send msg between two nodes with in the same cluster
@@ -136,8 +128,13 @@ public class Node implements Runnable {
 
             // this is to reduce energy every unit time?
             this.setEnergy(-1);
+            // this to ensure that //:TODO have finalize this
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
-//        System.out.println("================ Node " + this.getId() + " has died. ==================");
         System.out.println("[DEATH] Node " + this.getId() + " has died.");
         this.cluster.removeMember(this);
     }

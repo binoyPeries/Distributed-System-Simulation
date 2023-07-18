@@ -38,21 +38,7 @@ public class Cluster {
     public void setLeader(Node leader) {
         this.leader = leader;
     }
-
-//    public void updateMemberEnergy(Node node, int updateBy) {
-//        lock.writeLock().lock();
-//        try {
-//            int index = nodeMembers.indexOf(node);
-//            nodeMembers.get(index).setEnergy(updateBy);
-//            System.out.println("energy reduced");
-//            System.out.println("done by-" + node.getId() + "" + this.nodeMembers);
-//
-//
-//        } finally {
-//            lock.writeLock().unlock();
-//        }
-//    }
-
+    
     public void removeMember(Node node) {
         lock.writeLock().lock();
         try {
