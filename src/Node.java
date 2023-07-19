@@ -133,7 +133,7 @@ public class Node implements Runnable {
             this.setEnergy(-1);
             // this to ensure that //:TODO have finalize this
             try {
-                Thread.sleep(1000);
+                Thread.sleep(10);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

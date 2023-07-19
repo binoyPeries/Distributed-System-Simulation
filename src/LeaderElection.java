@@ -97,14 +97,16 @@ public class LeaderElection {
             return;
         }
         if (message.getMessageType() == MsgType.ELECTION) {
-            Long electionHolderId = message.getElectionHolder().getId();
-            if (currentNode.getId() > electionHolderId) {
+            int electionHolderEnergy = message.getElectionHolder().getEnergy();
+            int currentNodeEnergy = currentNode.getEnergy();
+            if (currentNodeEnergy < electionHolderEnergy) {
                 System.out.println("[ELECTION] Forwarding to successor " + successor.getId() + " as it is, by " + currentNode.getId());
                 currentNode.sendMessage(message, successor);
-            } else if (currentNode.getId() < electionHolderId) {
+            } else if (currentNodeEnergy > electionHolderEnergy) {
                 if (currentNode.getStatus() == ElectionParticipantStatus.NON_PARTICIPANT) {
                     System.out.println("[ELECTION] Node with id " + currentNode.getId() + "has started its own election.");
                     message.setElectionHolder(currentNode);
+                    message.setReceiver(successor);
                     currentNode.setStatus(ElectionParticipantStatus.PARTICIPANT);
                     currentNode.sendMessage(message, successor);
                 }
