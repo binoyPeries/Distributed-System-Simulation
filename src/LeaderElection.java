@@ -52,7 +52,6 @@ public class LeaderElection {
 
                 for (Node groupMember : groupNodesOfLeader) {
                     if (groupMember.getCluster() == null) {
-//                        groupMember.setLeaderId(leader);
                         groupMember.setCluster(cluster);
                         groupedNodes.add(groupMember);
                         ungroupedNodes.remove(groupMember);
@@ -61,7 +60,6 @@ public class LeaderElection {
                         finalGroupMembers.remove(groupMember);
                     }
                 }
-//                finalGroupMembers.forEach(node -> node.updateGroup(finalGroupMembers));
                 if (!finalGroupMembers.isEmpty()) {
                     cluster.setLeader(leader);
                     cluster.updateClusterMembers(finalGroupMembers);
