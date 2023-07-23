@@ -88,7 +88,7 @@ public class Node extends Thread {
             try {
                 Message message = messageQueue.take();
                 if (message.getMessageType() == MsgType.OTHER) {
-                    System.out.println("[MESSAGE] Node " + this.getId() + " received the message " + message.getMsg() + " from " + message.getSender().getId());
+                    logger.info("[MESSAGE] Node " + this.getId() + " received the message " + message.getMsg() + " from " + message.getSender().getId());
                 } else {
                     LeaderElection.handleElection(message, this);
                 }
@@ -133,12 +133,12 @@ public class Node extends Thread {
             this.setEnergy(-1);
             //:TODO change to 1000
             try {
-                Thread.sleep(10);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
-        System.out.println("[DEATH] Node " + this.getId() + " has died.");
+        logger.info("[DEATH] Node " + this.getId() + " has died.");
         this.cluster.removeMember(this);
     }
 }
