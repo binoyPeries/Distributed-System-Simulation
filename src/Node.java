@@ -7,7 +7,7 @@ enum ElectionParticipantStatus {
     NON_PARTICIPANT
 }
 
-public class Node implements Runnable {
+public class Node extends Thread {
     private static final Logger logger = Logger.getLogger(Node.class.getName());
     private final Long id;
     private final int x;
@@ -36,7 +36,7 @@ public class Node implements Runnable {
         this.status = status;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
@@ -133,7 +133,7 @@ public class Node implements Runnable {
             this.setEnergy(-1);
             //:TODO change to 1000
             try {
-                Thread.sleep(1000);
+                Thread.sleep(10);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

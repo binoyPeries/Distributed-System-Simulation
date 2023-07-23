@@ -38,7 +38,7 @@ public class Cluster {
     public void setLeader(Node leader) {
         this.leader = leader;
     }
-    
+
     public void removeMember(Node node) {
         lock.writeLock().lock();
         try {
@@ -67,8 +67,7 @@ public class Cluster {
     public void startNodes(Long clusterId) {
         List<Node> nodeList = this.getNodeMembers();
         for (Node nodeMember : nodeList) {
-            Thread nodeThread = new Thread(nodeMember);
-            nodeThread.start();
+            nodeMember.start();
             System.out.println("[NODE] Thread for node with id " + nodeMember.getId() + " in cluster " + clusterId + " has started.");
         }
     }
