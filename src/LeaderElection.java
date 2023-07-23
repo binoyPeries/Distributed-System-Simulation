@@ -90,6 +90,7 @@ public class LeaderElection {
 
     public synchronized static void handleElection(Message message, Node currentNode) {
         Node successor = Util.getNodeSuccessor(currentNode);
+
         if (successor == null) {
             System.out.println("[ELECTION - NEW LEADER] Node with id " + currentNode.getId() + " has become the leader.");
             currentNode.setStatus(ElectionParticipantStatus.NON_PARTICIPANT);
@@ -98,17 +99,27 @@ public class LeaderElection {
         }
         if (message.getMessageType() == MsgType.ELECTION) {
             int electionHolderEnergy = message.getElectionHolder().getEnergy();
+            Long electionHolderId = message.getElectionHolder().getId();
             int currentNodeEnergy = currentNode.getEnergy();
-            if (currentNodeEnergy < electionHolderEnergy) {
-                System.out.println("[ELECTION] Forwarding to successor " + successor.getId() + " as it is, by " + currentNode.getId());
-                currentNode.sendMessage(message, successor);
-            } else if (currentNodeEnergy > electionHolderEnergy) {
-                if (currentNode.getStatus() == ElectionParticipantStatus.NON_PARTICIPANT) {
-                    System.out.println("[ELECTION] Node with id " + currentNode.getId() + "has started its own election.");
-                    message.setElectionHolder(currentNode);
-                    message.setReceiver(successor);
-                    currentNode.setStatus(ElectionParticipantStatus.PARTICIPANT);
+            Long currentNodeId = currentNode.getId();
+
+            // to check whether the two nodes are the same or not
+            if (!Objects.equals(currentNodeId, electionHolderId)) {
+                
+                if (currentNodeEnergy <= electionHolderEnergy) {
+                    System.out.println("[ELECTION] Forwarding to successor " + successor.getId() + " as it is, by " + currentNode.getId());
+                    message.setSender(currentNode);
                     currentNode.sendMessage(message, successor);
+
+                } else {
+                    if (currentNode.getStatus() == ElectionParticipantStatus.NON_PARTICIPANT) {
+                        System.out.println("[ELECTION] Node with id " + currentNode.getId() + "has started its own election.");
+                        message.setElectionHolder(currentNode);
+                        message.setReceiver(successor);
+                        message.setSender(currentNode);
+                        currentNode.setStatus(ElectionParticipantStatus.PARTICIPANT);
+                        currentNode.sendMessage(message, successor);
+                    }
                 }
             } else {
                 System.out.println("[ELECTION - NEW LEADER] Node with id " + currentNode.getId() + " has become the leader.");
@@ -117,6 +128,7 @@ public class LeaderElection {
                 Message electedMsg = new Message(MsgType.ELECTED, currentNode, successor, "I'm the new leader");
                 currentNode.sendMessage(electedMsg, successor);
             }
+
         } else if (message.getMessageType() == MsgType.ELECTED) {
             Node sender = message.getSender();
             if (!Objects.equals(sender.getId(), currentNode.getId())) {

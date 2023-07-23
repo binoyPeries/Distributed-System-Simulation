@@ -131,9 +131,9 @@ public class Node implements Runnable {
 
             // this is to reduce energy every unit time?
             this.setEnergy(-1);
-            // this to ensure that //:TODO have finalize this
+            //:TODO change to 1000
             try {
-                Thread.sleep(10);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
