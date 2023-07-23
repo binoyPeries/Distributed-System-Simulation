@@ -19,6 +19,7 @@ Sample inputs have been provided in the input folder.
 
 ## Running the Program
 
+Open the project directory from the command line and navigate to the src folder.
 From within the src folder, run the following commands in the terminal.
 
 ```bash
