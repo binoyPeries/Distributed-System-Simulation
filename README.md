@@ -6,7 +6,8 @@ an initial amount of energy. Upon system initialization, groups of nodes are for
 their Euclidean distance to each other, and an initial leader for each group is selected. For each
 timestep of the system, the energy of a node decreases by 1, and upon message transmission, the energy of
 the sender decreases by 2. When the energy of a node reaches 0, it will be considered dead and removed from the system.
-If the leader of a group reaches a 0 energy level, a leader election will happen within that group, and a new leader will
+If the leader of a group reaches a 0 energy level, a leader election will happen within that group, and a new leader
+will
 be elected.
 The goal of the system is to maximize its lifetime.
 
@@ -55,3 +56,19 @@ that group until the system finishes.
 Once a leader dies (reaches 0 energy), that group (if it has any nodes left) will have a leader election. In this
 system, leader election is done according to the ring algorithm.
 
+## Output Logs
+
+All input and output files are contained within the io folder. All output logs contain the type of log within square
+brackets as listed below.
+
+```bash
+[SYSTEM STATUS] is a log of all of the nodes within the system at a given timestamp. It prints out the node ID, energy and leader of the node.
+
+[MESSAGE] is a log of a message passing between nodes, indicating the recipient, sender and contents of the message.
+
+[ELECTION] is a log of an election occuring, which details what node is starting the election, and the forwarding of election messages between nodes.
+
+[ELECTION - NEW LEADER] is a log of a new leader being elected, which displays which node was elected as the leader.
+
+[DEATH] is a log indicating that a node has died.
+```
