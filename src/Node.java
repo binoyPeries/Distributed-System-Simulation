@@ -133,7 +133,7 @@ public class Node extends Thread {
             this.setEnergy(-1);
             //:TODO change to 1000
             try {
-                Thread.sleep(1);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

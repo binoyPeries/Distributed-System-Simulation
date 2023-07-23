@@ -118,7 +118,7 @@ public class Util {
     public static void initializeLogger(Logger logger) {
         try {
             // Set up a FileHandler to log to a file named "application.log"
-            FileHandler fileHandler = new FileHandler("output.log");
+            FileHandler fileHandler = new FileHandler("io/output.log");
 
             // Create a SimpleFormatter to format the log messages
             CustomFormatter formatter = new CustomFormatter();
