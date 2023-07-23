@@ -6,7 +6,8 @@ an initial amount of energy. Upon system initialization, groups of nodes are for
 their Euclidean distance to each other, and an initial leader for each group is selected. For each
 timestep of the system, the energy of a node decreases by 1, and upon message transmission, the energy of
 the sender decreases by 2. When the energy of a node reaches 0, it will be considered dead and removed from the system.
-If the leader of a group reaches a 0 energy level, a leader election will happen within that group, and a new leader will
+If the leader of a group reaches a 0 energy level, a leader election will happen within that group, and a new leader
+will
 be elected.
 The goal of the system is to maximize its lifetime.
 
@@ -30,7 +31,7 @@ example, if you wish to point to the sample input file input1.txt in the input f
 you need to input
 
 ```bash
-../input/input1.txt
+../io/input1.txt
 ```
 
 So the input process would be:
@@ -38,20 +39,53 @@ So the input process would be:
 ```bash
 [WORKING_DIR]/src> javac Main.java
 [WORKING_DIR]/src> java Main
-Enter your input file path: ../input/input1.txt
+Enter your input file path: ../io/input1.txt
 ```
 
-## Initial Leader Selection and Group Formation
+## System Design
 
-Once inputs are read, the code checks to see which node has the most nodes within a radius of 20 (Euclidean distance).
-This is done by maintaining a hash map - each node id is a key and the nodes within a radius of 20 will be the value.
-The node which has the highest number of nodes within a radius of 20 is made the leader of that group. This process is
-repeated until each node is either a leader or belongs to a group. One node is only assigned to one group, and it will
-remain in
-that group until the system finishes.
+* Each node is part of a cluster, and each cluster has a leader.
+* Once the leader runs out of energy, the next leader is selected from within the cluster itself.
+* Nodes within the cluster can communicate with each other.
+* Each node is designed as a thread to mimic the independently functioning nodes in an actual distributed system.
+* Node ID is based on the atomic timestamp of when the node was created. This is also used to mimic the functioning of
+  an
+  actual distributed system where nodes start at different times, and we also ensure that no two nodes will have the
+  same
+  node ID.
+* A variation of the message queuing model is implemented in the nodes as the message passing mechanism.
+* Each node contains a blocking queue where it stores all of its received messages. The blocking queue contains
+  concurrency control mechanisms to manage access by multiple threads.
+* Random message passing is done between random nodes to simulate the functioning of a distributed system.
+* Unit time in the simulation is considered as 1 second.
+* 1 unit of energy is decreased from each node per unit time, and 2 units of energy are decreased from the transmitter
+  of
+  a message when a message is passed.
+* A variation of the ring algorithm is used for the leader election algorithm.
+* In the leader election, priority of a node is decided based on its energy level, since the goal of the simulation is
+  to
+  maximize the system lifetime. Therefore nodes with higher energy are of higher priority.
+* Once a node reaches an energy level of 0, it is considered to be dead.
+  Concurrency control mechanisms like read and write locks have been used when necessary.
 
-## Leader Election - Ring Algorithm
+## Visualization
 
-Once a leader dies (reaches 0 energy), that group (if it has any nodes left) will have a leader election. In this
-system, leader election is done according to the ring algorithm.
+Outputs will be logged into the output.log file within the io folder. It will also be printed in the console. The
+following section contains the types of output logs in the system.
 
+### Output Logs
+
+All input and output files are contained within the io folder. All output logs contain the type of log within square
+brackets as listed below.
+
+```bash
+[SYSTEM STATUS] is a log of the status of a node within the system at a given timestamp. It prints out the node ID, energy and leader of the node.
+
+[MESSAGE] is a log of a message passing between nodes, indicating the recipient, sender and contents of the message.
+
+[ELECTION] is a log of an election occuring, which details what node is starting the election, and the forwarding of election messages between nodes.
+
+[ELECTION - NEW LEADER] is a log of a new leader being elected, which displays which node was elected as the leader.
+
+[DEATH] is a log indicating that a node has died.
+```

@@ -3,10 +3,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Formatter;
+import java.util.logging.*;
 
 public class Util {
     private static final AtomicReference<Long> currentTime =
             new AtomicReference<>(System.currentTimeMillis());
+
+    private static final Logger logger = Logger.getLogger(Node.class.getName());
+
 
     public static Long generateId() {
         return currentTime.accumulateAndGet(System.currentTimeMillis(),
@@ -106,8 +111,47 @@ public class Util {
 
         String msgInfo = "Node " + sender.getId() + " is sending a random message to node " + receiver.getId();
         Message msg = new Message(MsgType.OTHER, sender, receiver, msgInfo);
-        System.out.println("[MESSAGE] " + msgInfo);
+        logger.info("[MESSAGE] " + msgInfo);
         sender.sendMessage(msg, receiver);
+    }
+
+    public static void initializeLogger(Logger logger) {
+        try {
+            // Set up a FileHandler to log to a file named "application.log"
+            FileHandler fileHandler = new FileHandler("io/output.log");
+
+            // Create a SimpleFormatter to format the log messages
+            CustomFormatter formatter = new CustomFormatter();
+
+            fileHandler.setFormatter(formatter);
+
+
+            // Get the root logger and add the FileHandler to it
+            logger.addHandler(fileHandler);
+
+            // Set the log level to INFO (optional, can be adjusted as needed)
+            logger.setLevel(Level.ALL);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static class CustomFormatter extends Formatter {
+        @Override
+        public String format(LogRecord record) {
+            // Get the timestamp of the log record
+            long timestamp = record.getMillis();
+
+            // Format the timestamp into a human-readable date and time string
+            String date = new java.text.SimpleDateFormat("MMM dd, yyyy h:mm:ss a").format(new java.util.Date(timestamp));
+
+            // Get the log message
+            String message = record.getMessage();
+
+            // Customize the log message format here
+            // In this example, we include only the timestamp and the log message
+            return date + "\n" + message + "\n";
+        }
     }
 
 

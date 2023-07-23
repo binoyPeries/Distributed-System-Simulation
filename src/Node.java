@@ -7,7 +7,7 @@ enum ElectionParticipantStatus {
     NON_PARTICIPANT
 }
 
-public class Node implements Runnable {
+public class Node extends Thread {
     private static final Logger logger = Logger.getLogger(Node.class.getName());
     private final Long id;
     private final int x;
@@ -36,7 +36,7 @@ public class Node implements Runnable {
         this.status = status;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
@@ -88,7 +88,7 @@ public class Node implements Runnable {
             try {
                 Message message = messageQueue.take();
                 if (message.getMessageType() == MsgType.OTHER) {
-                    System.out.println("[MESSAGE] Node " + this.getId() + " received the message " + message.getMsg() + " from " + message.getSender().getId());
+                    logger.info("[MESSAGE] Node " + this.getId() + " received the message " + message.getMsg() + " from " + message.getSender().getId());
                 } else {
                     LeaderElection.handleElection(message, this);
                 }
@@ -131,14 +131,14 @@ public class Node implements Runnable {
 
             // this is to reduce energy every unit time?
             this.setEnergy(-1);
-            // this to ensure that //:TODO have finalize this
+            //:TODO change to 1000
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
-        System.out.println("[DEATH] Node " + this.getId() + " has died.");
+        logger.info("[DEATH] Node " + this.getId() + " has died.");
         this.cluster.removeMember(this);
     }
 }

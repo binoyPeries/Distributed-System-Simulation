@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.logging.Logger;
 
 public class Cluster {
     private final Long id;
@@ -15,6 +16,7 @@ public class Cluster {
     private List<Cluster> clusterList;
 
     private final ReadWriteLock lock;
+    private static final Logger logger = Logger.getLogger(Node.class.getName());
 
 
     public Cluster() {
@@ -38,7 +40,7 @@ public class Cluster {
     public void setLeader(Node leader) {
         this.leader = leader;
     }
-    
+
     public void removeMember(Node node) {
         lock.writeLock().lock();
         try {
@@ -67,9 +69,8 @@ public class Cluster {
     public void startNodes(Long clusterId) {
         List<Node> nodeList = this.getNodeMembers();
         for (Node nodeMember : nodeList) {
-            Thread nodeThread = new Thread(nodeMember);
-            nodeThread.start();
-            System.out.println("[NODE] Thread for node with id " + nodeMember.getId() + " in cluster " + clusterId + " has started.");
+            nodeMember.start();
+            logger.info("[NODE] Thread for node with id " + nodeMember.getId() + " in cluster " + clusterId + " has started.");
         }
     }
 

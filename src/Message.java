@@ -6,8 +6,8 @@ enum MsgType {
 
 public class Message {
     private final MsgType messageType;
-    private final Node sender;
-    private final Node receiver;
+    private Node sender;
+    private Node receiver;
     private Node electionHolder;
     private final String msg;
 
@@ -61,5 +61,13 @@ public class Message {
                 ", electionHolder=" + electionHolder +
                 ", msg='" + msg + '\'' +
                 '}';
+    }
+
+    public void setSender(Node sender) {
+        this.sender = sender;
+    }
+
+    public void setReceiver(Node receiver) {
+        this.receiver = receiver;
     }
 }
